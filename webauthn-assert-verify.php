@@ -4,6 +4,7 @@
  */
 require_once __DIR__ . '/auth.php';
 header('Content-Type: application/json; charset=utf-8');
+setSecurityHeaders();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -32,7 +33,11 @@ $clientDataJSON = $input['response']['clientDataJSON'] ?? '';
 $authenticatorData = $input['response']['authenticatorData'] ?? '';
 $signature = $input['response']['signature'] ?? '';
 
-if ($clientDataJSON === '') {
+if (!is_string($credId) || strlen($credId) > 512 || !preg_match('/^[A-Za-z0-9_-]+$/', $credId)) {
+    echo json_encode(['success' => false, 'error' => 'Invalid assertion']);
+    exit;
+}
+if ($clientDataJSON === '' || !is_string($clientDataJSON)) {
     echo json_encode(['success' => false, 'error' => 'Invalid assertion']);
     exit;
 }
@@ -52,6 +57,15 @@ if ($challengeFromClient !== $expectedChallengeB64) {
 
 if (($clientData['type'] ?? '') !== 'webauthn.get') {
     echo json_encode(['success' => false, 'error' => 'Invalid type']);
+    exit;
+}
+
+$origin = isset($clientData['origin']) ? $clientData['origin'] : '';
+$expectedOrigin = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+$originHost = $origin !== '' ? (parse_url($origin, PHP_URL_HOST) ?: '') : '';
+$expectedHost = parse_url($expectedOrigin, PHP_URL_HOST) ?: $_SERVER['HTTP_HOST'] ?? 'localhost';
+if ($origin !== '' && $originHost !== '' && $originHost !== $expectedHost) {
+    echo json_encode(['success' => false, 'error' => 'Invalid origin']);
     exit;
 }
 
@@ -78,6 +92,7 @@ if (!$found) {
 
 unset($_SESSION['webauthn_assert_challenge'], $_SESSION['webauthn_assert_user']);
 $_SESSION['user'] = $expectedUser;
+session_regenerate_id(true);
 
 echo json_encode(['success' => true, 'username' => $expectedUser]);
 

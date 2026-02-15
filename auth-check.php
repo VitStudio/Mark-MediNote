@@ -2,8 +2,9 @@
 /**
  * Auth check — returns current user or 401
  */
-header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/auth.php';
+header('Content-Type: application/json; charset=utf-8');
+setSecurityHeaders();
 if (isLoggedIn()) {
     echo json_encode(['success' => true, 'username' => getCurrentUser()]);
 } else {

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/auth.php';
+setSecurityHeaders();
 if (!isLoggedIn()) {
     header('Location: login.html');
     exit;
@@ -21,6 +22,7 @@ if (!isLoggedIn()) {
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <!-- Markdown / PDF -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Mermaid -->

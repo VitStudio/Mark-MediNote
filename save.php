@@ -4,9 +4,7 @@
  */
 require_once __DIR__ . '/auth.php';
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+setSecurityHeaders();
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -27,6 +25,11 @@ if ($content === '' || $filename === '') {
 
 if (!preg_match('/\.md$/i', $filename)) {
     $filename .= '.md';
+}
+if (!preg_match('/^[a-zA-Z0-9_\-]+\.md$/i', $filename)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Invalid filename']);
+    exit;
 }
 
 $saveDir = getUserDataDir();
@@ -49,6 +52,13 @@ if (!$saveDir || !is_dir($saveDir)) {
 }
 
 $filepath = $saveDir . '/' . $filename;
+$realSaveDir = realpath($saveDir);
+$realParent = realpath(dirname($filepath));
+if ($realSaveDir === false || $realParent === false || $realParent !== $realSaveDir) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Invalid path']);
+    exit;
+}
 
 if (file_put_contents($filepath, $content) !== false) {
     echo json_encode([

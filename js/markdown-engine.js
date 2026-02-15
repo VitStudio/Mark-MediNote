@@ -55,6 +55,9 @@ export function renderMarkdown(text) {
                 .replace(/&gt;/g, '>')}</div>`
     );
 
+    if (typeof DOMPurify !== 'undefined') {
+        html = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+    }
     return html;
 }
 

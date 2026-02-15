@@ -4,6 +4,7 @@
  */
 require_once __DIR__ . '/auth.php';
 header('Content-Type: application/json; charset=utf-8');
+setSecurityHeaders();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -29,6 +30,11 @@ if (!preg_match('/\.md$/i', $oldName)) {
 if (!preg_match('/\.md$/i', $newName)) {
     $newName .= '.md';
 }
+if (!preg_match('/^[a-zA-Z0-9_\-]+\.md$/i', $oldName) || !preg_match('/^[a-zA-Z0-9_\-]+\.md$/i', $newName)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Invalid filename']);
+    exit;
+}
 
 $dir = getUserDataDir();
 if (!$dir || !is_dir($dir)) {
@@ -43,6 +49,14 @@ $newPath = $dir . '/' . $newName;
 if (!file_exists($oldPath) || !is_file($oldPath)) {
     http_response_code(404);
     echo json_encode(['success' => false, 'error' => 'File not found']);
+    exit;
+}
+
+$realOldPath = realpath($oldPath);
+$realUserDir = realpath($dir);
+if ($realOldPath === false || $realUserDir === false || strpos($realOldPath . DIRECTORY_SEPARATOR, $realUserDir . DIRECTORY_SEPARATOR) !== 0) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Invalid path']);
     exit;
 }
 

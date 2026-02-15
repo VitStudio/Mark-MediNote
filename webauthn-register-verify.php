@@ -4,6 +4,7 @@
  */
 require_once __DIR__ . '/auth.php';
 header('Content-Type: application/json; charset=utf-8');
+setSecurityHeaders();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -28,6 +29,32 @@ if ($challenge === '') {
 $credId = $input['id'];
 $attestation = $input['response']['attestationObject'] ?? '';
 $clientData = $input['response']['clientDataJSON'] ?? '';
+
+if (!is_string($credId) || strlen($credId) > 512 || !preg_match('/^[A-Za-z0-9_-]+$/', $credId)) {
+    echo json_encode(['success' => false, 'error' => 'Invalid credential']);
+    exit;
+}
+if (!is_string($attestation) || strlen($attestation) > 4096 || !preg_match('/^[A-Za-z0-9_-]*$/', $attestation)) {
+    echo json_encode(['success' => false, 'error' => 'Invalid credential']);
+    exit;
+}
+if (!is_string($clientData) || strlen($clientData) > 2048 || !preg_match('/^[A-Za-z0-9_-]*$/', $clientData)) {
+    echo json_encode(['success' => false, 'error' => 'Invalid credential']);
+    exit;
+}
+
+$clientDataDecoded = base64url_decode($clientData);
+$clientDataJson = $clientDataDecoded ? json_decode($clientDataDecoded, true) : null;
+if (!is_array($clientDataJson) || ($clientDataJson['type'] ?? '') !== 'webauthn.create') {
+    echo json_encode(['success' => false, 'error' => 'Invalid credential']);
+    exit;
+}
+$clientChallenge = isset($clientDataJson['challenge']) ? $clientDataJson['challenge'] : '';
+$expectedB64 = rtrim(strtr($challenge, '+/', '-_'), '=');
+if ($clientChallenge !== $expectedB64) {
+    echo json_encode(['success' => false, 'error' => 'Challenge mismatch']);
+    exit;
+}
 
 $userDir = getUserDataDir();
 if (!$userDir || !is_dir($userDir)) {
@@ -68,4 +95,10 @@ if ($written !== false) {
     echo json_encode(['success' => true]);
 } else {
     echo json_encode(['success' => false, 'error' => 'Failed to save credential']);
+}
+
+function base64url_decode($s) {
+    $s = str_replace(['-', '_'], ['+', '/'], $s);
+    $s .= str_repeat('=', (4 - strlen($s) % 4) % 4);
+    return base64_decode($s);
 }

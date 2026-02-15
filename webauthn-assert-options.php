@@ -2,7 +2,9 @@
 /**
  * WebAuthn assertion — get options for biometric login (by username)
  */
+require_once __DIR__ . '/auth.php';
 header('Content-Type: application/json; charset=utf-8');
+setSecurityHeaders();
 
 $username = isset($_GET['username']) ? trim((string) $_GET['username']) : '';
 $safeUser = preg_replace('/[^a-zA-Z0-9_]/', '', $username);

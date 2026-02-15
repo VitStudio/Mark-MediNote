@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Markdown Editor</title>
+    <link rel="icon" type="image/x-icon" href="/david_self.ico">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gh-bg: #0d1117;
+            --gh-bg-subtle: #161b22;
+            --gh-border: #30363d;
+            --gh-text: #e6edf3;
+            --gh-text-sub: #8b949e;
+            --gh-blue: #58a6ff;
+            --gh-green: #3fb950;
+        }
+        body { font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; background: var(--gh-bg); color: var(--gh-text); display: flex; align-items: center; justify-content: center; }
+        .card { background: var(--gh-bg-subtle); border: 1px solid var(--gh-border); border-radius: 12px; padding: 32px; width: 100%; max-width: 360px; }
+        .gh-input { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--gh-border); font-size: 14px; background: var(--gh-bg); color: var(--gh-text); width: 100%; box-sizing: border-box; }
+        .gh-input:focus { outline: none; border-color: var(--gh-blue); }
+        .gh-btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; width: 100%; }
+        .gh-btn-primary { background: #238636; color: #fff; }
+        .gh-btn-primary:hover { background: #2ea043; }
+        .gh-btn-secondary { background: var(--gh-bg); color: var(--gh-text); border: 1px solid var(--gh-border); }
+        .gh-btn-secondary:hover { background: var(--gh-bg-subtle); }
+        .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid var(--gh-border); }
+        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--gh-text-sub); border-bottom: 2px solid transparent; }
+        .tab.active { color: var(--gh-blue); border-bottom-color: var(--gh-blue); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--gh-text-sub); margin-bottom: 6px; }
+        #msg { font-size: 13px; margin-top: 12px; min-height: 20px; }
+        #msg.err { color: #f85149; }
+        #msg.ok { color: var(--gh-green); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 style="font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center;">My Medinote</h1>
+        <div class="tabs">
+            <div class="tab active" data-tab="login">Login</div>
+            <div class="tab" data-tab="register">Register</div>
+        </div>
+
+        <div id="login-form" class="tab-content active">
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" class="gh-input" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="gh-input" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="gh-btn gh-btn-primary">Login</button>
+                <div class="mt-3 pt-3" style="border-top:1px solid var(--gh-border);">
+                    <button type="button" id="btn-biometric-login" class="gh-btn gh-btn-secondary w-full flex items-center justify-center gap-2" style="padding:8px 12px;font-size:13px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Login with Face ID
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="register-form" class="tab-content">
+            <form id="form-register">
+                <div class="form-group">
+                    <label for="reg-username">Username</label>
+                    <input type="text" placeholder="Minimum 2 characters" id="reg-username" class="gh-input" name="username" required autocomplete="username" minlength="2">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" placeholder="Minimum 4 characters" id="reg-password" class="gh-input" name="password" required autocomplete="new-password" minlength="4">
+                </div>
+                <button type="submit" class="gh-btn gh-btn-primary">Register</button>
+            </form>
+        </div>
+
+        <p id="msg"></p>
+    </div>
+
+    <script>
+        (function() {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            const msg = document.getElementById('msg');
+
+            function showMsg(text, isErr) {
+                msg.textContent = text || '';
+                msg.className = isErr ? 'err' : (text ? 'ok' : '');
+            }
+
+            tabs.forEach(t => {
+                t.addEventListener('click', () => {
+                    const tab = t.dataset.tab;
+                    tabs.forEach(x => x.classList.remove('active'));
+                    contents.forEach(x => x.classList.remove('active'));
+                    t.classList.add('active');
+                    document.getElementById(tab + '-form').classList.add('active');
+                    showMsg('');
+                });
+            });
+
+            document.getElementById('form-login').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showMsg('');
+                const username = document.getElementById('login-username').value.trim();
+                const password = document.getElementById('login-password').value;
+                try {
+                    const res = await fetch('login.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showMsg('Redirecting…', false);
+                        window.location.href = 'index.php';
+                    } else {
+                        showMsg(data.error || 'Login failed', true);
+                    }
+                } catch (err) {
+                    showMsg('Network error', true);
+                }
+            });
+
+            document.getElementById('form-register').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showMsg('');
+                const username = document.getElementById('reg-username').value.trim();
+                const password = document.getElementById('reg-password').value;
+                try {
+                    const res = await fetch('register.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showMsg('Account created. Redirecting…', false);
+                        window.location.href = 'index.php';
+                    } else {
+                        showMsg(data.error || 'Registration failed', true);
+                    }
+                } catch (err) {
+                    showMsg('Network error', true);
+                }
+            });
+
+            document.getElementById('btn-biometric-login')?.addEventListener('click', async () => {
+                showMsg('');
+                const username = document.getElementById('login-username').value.trim();
+                if (!username) {
+                    showMsg('Enter username first', true);
+                    return;
+                }
+                try {
+                    const optsRes = await fetch('webauthn-assert-options.php?username=' + encodeURIComponent(username), { credentials: 'same-origin' });
+                    const optsData = await optsRes.json();
+                    if (!optsData.success || !optsData.options) {
+                        showMsg(optsData.error || 'Biometric not set up for this user', true);
+                        return;
+                    }
+                    const opts = optsData.options;
+                    const b64 = (s) => { let t = s.replace(/-/g,'+').replace(/_/g,'/'); return t + '='.repeat((4 - t.length % 4) % 4); };
+                    opts.challenge = Uint8Array.from(atob(b64(opts.challenge)), c => c.charCodeAt(0));
+                    opts.allowCredentials = (opts.allowCredentials || []).map(c => ({
+                        ...c,
+                        id: Uint8Array.from(atob(b64(c.id)), c => c.charCodeAt(0))
+                    }));
+                    const cred = await navigator.credentials.get({ publicKey: opts });
+                    if (!cred) {
+                        showMsg('Biometric cancelled', true);
+                        return;
+                    }
+                    const r = cred.response;
+                    const payload = {
+                        id: cred.id,
+                        rawId: btoa(String.fromCharCode(...new Uint8Array(cred.rawId))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
+                        response: {
+                            clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(r.clientDataJSON))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
+                            authenticatorData: btoa(String.fromCharCode(...new Uint8Array(r.authenticatorData))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
+                            signature: btoa(String.fromCharCode(...new Uint8Array(r.signature))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')
+                        }
+                    };
+                    const verifyRes = await fetch('webauthn-assert-verify.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(payload)
+                    });
+                    const verifyData = await verifyRes.json();
+                    if (verifyData.success) {
+                        showMsg('Redirecting…', false);
+                        window.location.href = 'index.php';
+                    } else {
+                        showMsg(verifyData.error || 'Biometric login failed', true);
+                    }
+                } catch (err) {
+                    showMsg(err.message || 'Biometric not supported', true);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

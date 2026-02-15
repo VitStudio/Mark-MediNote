@@ -1,6 +1,6 @@
 /**
  * Markdown Editor - ES6+
- * GitHub-like theme, resizable split, extended toolbar, Pomodoro, PDF export
+ * Theme, resizable split, extended toolbar, Pomodoro, PDF export
  */
 (() => {
     'use strict';

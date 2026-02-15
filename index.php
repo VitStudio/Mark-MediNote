@@ -18,17 +18,17 @@ if (!isLoggedIn()) {
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- KaTeX -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"></script>
     <!-- Markdown / PDF -->
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.12.1/html2pdf.bundle.min.js"></script>
     <!-- Mermaid -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
     <style>
-        /* ===== GITHUB DARK PALETTE ===== */
+        /* ===== DARK PALETTE ===== */
         :root {
             --gh-bg:         #0d1117;
             --gh-bg-subtle:  #161b22;
@@ -168,7 +168,7 @@ if (!isLoggedIn()) {
         }
         #editor::placeholder { color: var(--gh-text-muted); }
 
-        /* ===== PREVIEW PROSE (GitHub-style) ===== */
+        /* ===== PREVIEW PROSE ===== */
         #preview-content { font-size: 14px; line-height: 1.65; color: var(--gh-text); }
         #preview-content h1 { font-size: 2em; font-weight: 700; border-bottom: 1px solid var(--gh-border-sub); padding-bottom: 0.3em; margin: 24px 0 16px; }
         #preview-content h2 { font-size: 1.5em; font-weight: 600; border-bottom: 1px solid var(--gh-border-sub); padding-bottom: 0.3em; margin: 24px 0 16px; }
